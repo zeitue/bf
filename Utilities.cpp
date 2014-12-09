@@ -6,6 +6,7 @@
  */
 #include "Utilities.hpp"
 #include "Interpreter.hpp"
+
 namespace bf {
 
 void help(std::string name) {
@@ -27,6 +28,9 @@ void interprete(std::string name, int cell_size) {
 
 void interprete(std::string name) {
 	Interpreter i(name);
+#ifdef OPTIMIZED
+	i.optimize();
+#endif
 	i.eval();
 }
 

@@ -29,6 +29,24 @@ Interpreter::Interpreter(std::string filename, int cell_size) {
 Interpreter::~Interpreter() {
 	delete[] program;
 }
+
+#ifdef OPTIMIZED
+void Interpreter::optimize() {
+	std::stack<int> brackets;
+	int open_bracket = -1;
+	for (int i = 0; i < (int) code.length(); i++) {
+		if (code[i] == '[')
+			brackets.push(i - 1);
+		else if (code[i] == ']') {
+			open_bracket = brackets.top();
+			brackets.pop();
+			jump_back[i] = open_bracket;
+			jump_forward[open_bracket + 1] = i;
+		}
+	}
+}
+#endif
+
 void Interpreter::slurp(std::ifstream& in) {
 	std::stringstream sstr;
 	sstr << in.rdbuf();
@@ -61,28 +79,36 @@ void Interpreter::input() {
 }
 
 void Interpreter::forward() {
+#ifdef OPTIMIZED
+	if (program[pc] == '\0')
+		index = jump_forward[index];
+#else
 	int balance = 1;
 	if (program[pc] == '\0') {
 		do {
 			index++;
 			if (code[index] == '[')
-				balance++;
+			balance++;
 			else if (code[index] == ']')
-				balance--;
-		} while (balance != 0);
-
+			balance--;
+		}while (balance != 0);
 	}
+#endif
 }
 
 void Interpreter::backward() {
+#ifdef OPTIMIZED
+	index = jump_back[index];
+#else
 	int balance = 0;
 	do {
 		if (code[index] == '[')
-			balance++;
+		balance++;
 		else if (code[index] == ']')
-			balance--;
+		balance--;
 		index--;
-	} while (balance != 0);
+	}while (balance != 0);
+#endif
 }
 
 void Interpreter::eval() {

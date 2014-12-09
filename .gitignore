@@ -1,5 +1,8 @@
 bf
 .cproject
 .project
-Debug/
-Release/
+/.settings/
+/Debug/
+/Release/
+/Test/
+*~
